@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="GBK"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	 xmlns:mvc="http://www.springframework.org/schema/mvc"
+	 xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+	
+	<context:annotation-config/>
+    <context:component-scan base-package="com.accessplatform.oauth2.service"/>
+	<!-- 定义数据源Bean，使用C3P0数据源实现，并注入数据源的必要信息 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close"
+		p:driverClass="com.mysql.jdbc.Driver"
+		p:jdbcUrl="jdbc:mysql://localhost/spring_oauth"
+		p:user="root"
+		p:password="lichaofan"
+		p:maxPoolSize="40"
+		p:minPoolSize="2"
+		p:initialPoolSize="2"
+		p:maxIdleTime="30"/>
+	<!-- 定义Hibernate的SessionFactory，SessionFactory需要依赖数据源，注入dataSource -->
+	<bean id="sessionFactory" 
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
+		p:dataSource-ref="dataSource">
+		<!-- annotatedClasses用来列出全部持久化类 -->
+		<property name="annotatedClasses">
+			<list>
+				<!-- 以下用来列出所有的PO类-->
+				<value>com.accessplatform.oauth2.domain.User</value>
+				<value>com.accessplatform.oauth2.domain.OauthClientDetails</value>
+			</list>
+		</property>
+		<!-- 定义Hibernate SessionFactory的属性 -->
+		<property name="hibernateProperties">
+			<props>
+				<!-- 指定Hibernate的连接方言 -->
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<!--是否根据Hiberante映射创建数据表 -->
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>				
+			</props>
+		</property>
+	</bean>
+	<bean id="transactionManager" 
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager"
+		p:sessionFactory-ref="sessionFactory"/>
+	<!-- 定义DAO组件，并将SessionFactory注入DAO组件 -->		
+	<bean id="userDao" class="com.accessplatform.oauth2.dao.impl.UserDaoImpl"
+		p:sessionFactory-ref="sessionFactory"/>
+	<bean id="oauthDao" class="com.accessplatform.oauth2.dao.impl.OauthClientDaoImpl"
+		  p:sessionFactory-ref="sessionFactory"/>
+    <!-- property configuration -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:spring-oauth-server.properties</value>
+            </list>
+        </property>
+    </bean>
+
+   
+
+</beans>

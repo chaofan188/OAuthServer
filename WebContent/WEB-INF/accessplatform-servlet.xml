@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="GBK"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	 xmlns:mvc="http://www.springframework.org/schema/mvc"
+	 xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+
+    <context:annotation-config/>
+    <context:component-scan base-package="com.accessplatform.oauth2.controller"/>
+    <context:component-scan base-package="com.accessplatform.oauth2.endpoint"/>
+    <mvc:resources mapping="/index.jsp*" location="/index.jsp"/>
+    
+    <mvc:interceptors>
+    	<mvc:interceptor>
+    		<mvc:mapping path="/camera1/*" />
+    		<bean class="com.accessplatform.oauth2.interceptor.AuthenticationFilter"> </bean>
+    	</mvc:interceptor>
+    </mvc:interceptors>
+	
+	 <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping">
+        <property name="order" value="2"/>
+    </bean>
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+    </bean>
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+</beans>

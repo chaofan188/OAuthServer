@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+			http://www.springframework.org/schema/tx 
+			http://www.springframework.org/schema/tx/spring-tx-2.5.xsd 
+			http://www.springframework.org/schema/aop
+			http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+
+<!-- 配置事务增强处理Bean,指定事务管理器 -->
+	<tx:advice id="txAdvice" 
+		transaction-manager="transactionManager">
+		<!-- 用于配置详细的事务定义 -->
+		<tx:attributes>
+			<!-- 所有以'get'开头的方法是read-only的 -->
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="load*" propagation="REQUIRED" read-only="true"/>
+			<!-- 其他方法使用默认的事务设置，指定超时时长为5秒 -->
+			<tx:method name="*" isolation="DEFAULT"
+				propagation="REQUIRED" timeout="5"/>
+		</tx:attributes>
+	</tx:advice>
+	<!-- AOP配置的元素 -->
+	<aop:config>
+		<!-- 配置一个切入点 -->
+		<aop:pointcut id="myPointcut" expression="execution(* com.accessplatform.oauth2.service.*.*(..))"/>
+		<!-- 指定在myPointcut切入点应用txAdvice事务增强处理 -->
+		<aop:advisor advice-ref="txAdvice" 
+			pointcut-ref="myPointcut"/>
+	</aop:config>
+
+</beans>
